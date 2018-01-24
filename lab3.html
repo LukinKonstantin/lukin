@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<script src="jquery-1.9.1.min.js"></script>
+<script type="text/javascript">
+	$.ajax({
+        type: 'GET',
+        url: 'https://api.meetup.com/2/open_events',
+        contentType: 'text/plain',
+        dataType:'jsonp',
+        data:{
+        	country: 'us',
+        	state:'ma',
+        	city: 'Boston',
+        	format: 'json',
+        	limited_events: true,
+        	topic: 'softwaredev',
+        	time: '0,7d',
+        	radius: '50',
+        	page: '0',
+        	format : 'json',
+        	key: '6f5057325cd2b5551e4d1d6c681e24'
+    	},
+    })
+        .done(function (result) {
+        	let weekday = new Array(7);
+			weekday[0]=  "Sunday";
+			weekday[1] = "Monday";
+			weekday[2] = "Tuesday";
+			weekday[3] = "Wednesday";
+			weekday[4] = "Thursday";
+			weekday[5] = "Friday";
+			weekday[6] = "Saturday";
+			let curWeekday = -1;
+        	$.each(result['results'], function (key, meetup) {
+			    const title = $("<h3></h3>").text(meetup.name);
+			    const date = new Date((meetup.time));
+			    if(curWeekday!=date.getDay()){
+			    	curWeekday=date.getDay();
+			    	$("body").append('<h2>'+weekday[curWeekday]+'</h2>');
+			    }
+			    const day = date.getDate();
+			    const month = date.getMonth()+1;//мес€цы с 0
+			    const year = date.getFullYear();
+			    const hours = date.getHours();
+				const minutes = (date.getMinutes()!=0)?date.getMinutes():'00';
+			    const dateText = $("<p></p>").text(hours+':'+minutes+' '+day+'.'+month+'.'+year);
+			    const description = meetup.description;
+			    if(meetup.venue!==undefined){
+				    const adress = $("<p></p>").text((meetup.venue.name!==undefined)?meetup.venue.name:''+(meetup.venue.adress_1!==undefined)?('\n'+meetup.venue.adress_1):''+
+				    	(meetup.venue.adress_2!==undefined)?('\n'+meetup.venue.adress_2):''+(meetup.venue.adress_3!==undefined)?('\n'+meetup.venue.adress_3):'');
+			    	const city = $("<p></p>").text((meetup.venue.city!==undefined)?(meetup.venue.city+' '):''+(meetup.venue.state!==undefined)?(meetup.venue.state+' '):''+(meetup.venue.country!==undefined)?meetup.venue.country:'');
+			    	$("body").append(title, description,dateText, adress, city);
+				}
+				else{
+					$("body").append(title, description,dateText);
+				}
+			})
+        });
+</script>
